@@ -51,9 +51,9 @@ st.markdown("""
 
 st.info("""
 **Comment ça marche ?**
-1. **Collez** votre courrier.
-2. **Anonymisez** vos données (Optionnel).
-3. **Copiez** le "Prompt Expert" vers votre IA habituelle.
+1. **Collez** votre courrier ci-dessous.
+2. **Validez** pour générer le prompt.
+3. **Copiez** vers votre IA habituelle (ChatGPT, Gemini, Claude).
 """)
 
 def anonymize_text(text):
@@ -66,25 +66,48 @@ def anonymize_text(text):
     return text
 
 # ÉTAPE 1 : Saisie du texte
-text_input = st.text_area("✍️ 1. Copiez-collez le texte de votre courrier CAF ici :", height=200, placeholder="Ex: Nous avons procédé au calcul de vos droits...")
+text_input = st.text_area(
+    "✍️ 1. Copiez-collez le texte de votre courrier CAF ici :", 
+    height=200, 
+    placeholder="Ex: Nous avons procédé au calcul de vos droits...",
+    help="Appuyez sur Ctrl+Entrée (Windows) ou Cmd+Entrée (Mac) pour valider rapidement."
+)
 
-if text_input:
-    # --- FEATURE: ANONYMISATION LOCALE ---
-    if st.button("🛡️ Anonymiser mes données avant de copier"):
-        text_input = anonymize_text(text_input)
-        st.success("Données anonymisées (Montants, dates et numéros masqués).")
+# Utilisation d'un état pour gérer l'affichage du prompt
+if "show_prompt" not in st.session_state:
+    st.session_state.show_prompt = False
 
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("🚀 Valider et Générer le Prompt"):
+        if text_input:
+            st.session_state.show_prompt = True
+        else:
+            st.error("Veuillez d'abord coller un texte.")
+
+with col2:
+    if st.button("🛡️ Anonymiser mon texte"):
+        if text_input:
+            st.session_state.text_input = anonymize_text(text_input)
+            st.success("Données anonymisées.")
+        else:
+            st.error("Veuillez d'abord coller un texte.")
+
+if st.session_state.show_prompt and text_input:
     st.markdown("---")
     st.write("### 🤖 2. Votre Prompt Expert est prêt !")
-    st.write("Copiez ce texte et envoyez-le à ChatGPT, Gemini ou Claude.")
+    st.write("Copiez ce texte et envoyez-le à votre IA habituelle.")
     
+    # On utilise le texte éventuellement anonymisé
+    final_text = anonymize_text(text_input) if "text_input" not in st.session_state else st.session_state.text_input
+
     # --- SPECIFICATION ENGINEERING: LE PROMPT 2026 ---
     full_prompt = f"""
 Tu es un expert en administration française (spécialiste CAF). 
 Traduis ce courrier en langage simple, bienveillant et orienté ACTION.
 
 CONTEXTE DU COURRIER :
-{text_input}
+{final_text}
 
 CONSIGNES STRICTES (CONSTRAINT ARCHITECTURE) :
 1. Résume l'essentiel en une phrase sans jargon.
@@ -113,6 +136,7 @@ FORMAT DE RÉPONSE :
     st.code(full_prompt, language="markdown")
 
     st.markdown("---")
+    # ÉTAPE 2 : Récupération du résultat
     st.write("### 🔍 3. Collez la réponse de l'IA ici :")
     agent_output = st.text_area("Collez le résultat ici pour finaliser :", height=200)
 
@@ -133,7 +157,7 @@ with st.expander("🛡️ Sécurité & Vie Privée (Local-First)"):
     st.write("""
     - **Zéro Stockage** : Vos textes ne quittent pas votre navigateur vers nos serveurs.
     - **Anonymisation** : Le bouton de bouclier masque vos données sensibles localement.
-    - **Transparence** : Vous voyez exactement le prompt envoyé à l'IA.
+    - **Accessibilité** : Compatible Windows, Mac, Linux et Mobile.
     """)
 
 # Analytics
