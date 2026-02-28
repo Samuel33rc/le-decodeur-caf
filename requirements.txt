@@ -1,3 +1,2 @@
 streamlit
-pandas
-# Ajoute ici d'autres dépendances si besoin
+# Seul streamlit est nécessaire pour cette version "Bring Your Own AI"
