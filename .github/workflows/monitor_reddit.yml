@@ -1,0 +1,35 @@
+name: Monitor Reddit Feedback
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Exécution toutes les heures
+  workflow_dispatch: # Permet de lancer manuellement depuis l'interface GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/with-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run monitoring script
+      run: python monitor_reddit.py
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add feedback_report.json
+        git commit -m "Auto-update feedback report [skip ci]" || echo "No changes to commit"
+        git push
