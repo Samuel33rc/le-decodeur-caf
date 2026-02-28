@@ -1,0 +1,3 @@
+streamlit
+pandas
+# Ajoute ici d'autres dépendances si besoin
