@@ -4,141 +4,125 @@ import os
 import re
 
 # Configuration de la page
-st.set_page_config(page_title="Le Décodeur CAF", page_icon="📄")
+st.set_page_config(page_title="Le Décodeur CAF", page_icon="📄", layout="centered")
 
-# Styles personnalisés
+# Styles personnalisés pour un look "Papier Officiel"
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f7f9;
+        background-color: #f0f2f6;
     }
     .stButton>button {
         width: 100%;
-        border-radius: 5px;
-        height: 3em;
+        border-radius: 8px;
+        height: 3.5em;
         background-color: #007bff;
         color: white;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .report-box {
-        padding: 20px;
-        border-radius: 10px;
+        padding: 30px;
+        border-radius: 15px;
         background-color: white;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #d1d9e6;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     .disclaimer {
-        font-size: 0.8em;
-        color: #666;
-        padding: 10px;
-        border: 1px solid #ffcccc;
-        background-color: #fff5f5;
-        border-radius: 5px;
-        margin-bottom: 20px;
+        font-size: 0.85em;
+        color: #721c24;
+        padding: 15px;
+        border: 1px solid #f5c6cb;
+        background-color: #f8d7da;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+    .step-header {
+        color: #1e3a8a;
+        font-weight: bold;
+        margin-top: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("📄 Le Décodeur CAF")
-st.subheader("Traduisez vos courriers CAF en actions concrètes")
+st.markdown("### *Retrouvez la sérénité face à l'administration*")
 
-# --- CONSTRAINT ARCHITECTURE: DISCLAIMER JURIDIQUE ---
+# --- CONSTRAINT ARCHITECTURE: DISCLAIMER ---
 st.markdown("""
 <div class="disclaimer">
-    <strong>⚠️ AVERTISSEMENT :</strong> Cet outil est une aide à la compréhension basée sur l'intelligence artificielle. 
-    Il peut faire des erreurs. Ne prenez aucune décision financière ou juridique sans vérifier auprès d'un conseiller 
-    CAF officiel ou d'une assistante sociale.
+    <strong>⚠️ IMPORTANT :</strong> Cet outil expérimental utilise l'Intelligence Artificielle pour vous aider à comprendre vos documents. 
+    Il ne remplace pas l'avis d'un conseiller CAF. <strong>En cas de doute, contactez le 3230.</strong>
 </div>
 """, unsafe_allow_html=True)
 
-st.info("""
-**Comment ça marche ?**
-1. **Collez** votre courrier ci-dessous.
-2. **Validez** pour générer le prompt.
-3. **Copiez** vers votre IA habituelle (ChatGPT, Gemini, Claude).
-""")
-
-def anonymize_text(text):
-    # Remplace les montants (ex: 123,45 €)
-    text = re.sub(r'\d+[\s,.]\d+\s*€', '[MONTANT]', text)
-    # Remplace les dates
-    text = re.sub(r'\d{2}/\d{2}/\d{4}', '[DATE]', text)
-    # Tentative simple pour les numéros allocataires (7 chiffres)
-    text = re.sub(r'\b\d{7}\b', '[N° ALLOCATAIRE]', text)
-    return text
-
-# ÉTAPE 1 : Saisie du texte
+# ÉTAPE 1 : Saisie
+st.markdown('<p class="step-header">ÉTAPE 1 : Votre courrier</p>', unsafe_allow_html=True)
 text_input = st.text_area(
-    "✍️ 1. Copiez-collez le texte de votre courrier CAF ici :", 
+    "Copiez le texte de votre courrier ici :", 
     height=200, 
-    placeholder="Ex: Nous avons procédé au calcul de vos droits...",
-    help="Appuyez sur Ctrl+Entrée (Windows) ou Cmd+Entrée (Mac) pour valider rapidement."
+    placeholder="Ex: Suite à l'étude de votre dossier, nous avons constaté un trop-perçu...",
 )
 
-# Utilisation d'un état pour gérer l'affichage du prompt
+# Gestion de l'état
 if "show_prompt" not in st.session_state:
     st.session_state.show_prompt = False
 
+def anonymize_text(text):
+    text = re.sub(r'\d+[\s,.]\d+\s*€', '[MONTANT]', text)
+    text = re.sub(r'\d{2}/\d{2}/\d{4}', '[DATE]', text)
+    text = re.sub(r'\b\d{7}\b', '[N° ALLOCATAIRE]', text)
+    return text
+
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("🚀 Valider et Générer le Prompt"):
+    if st.button("🚀 Décoder mon courrier"):
         if text_input:
             st.session_state.show_prompt = True
         else:
-            st.error("Veuillez d'abord coller un texte.")
+            st.error("Veuillez coller un texte.")
 
 with col2:
-    if st.button("🛡️ Anonymiser mon texte"):
+    if st.button("🛡️ Masquer mes données"):
         if text_input:
             st.session_state.text_input = anonymize_text(text_input)
-            st.success("Données anonymisées.")
-        else:
-            st.error("Veuillez d'abord coller un texte.")
+            st.success("Données sensibles masquées !")
 
 if st.session_state.show_prompt and text_input:
     st.markdown("---")
-    st.write("### 🤖 2. Votre Prompt Expert est prêt !")
-    st.write("Copiez ce texte et envoyez-le à votre IA habituelle.")
+    st.markdown('<p class="step-header">ÉTAPE 2 : Analyse par l\'IA</p>', unsafe_allow_html=True)
+    st.write("Copiez ce bloc et collez-le dans **ChatGPT**, **Claude** ou **Gemini**.")
     
-    # On utilise le texte éventuellement anonymisé
     final_text = anonymize_text(text_input) if "text_input" not in st.session_state else st.session_state.text_input
 
-    # --- SPECIFICATION ENGINEERING: LE PROMPT 2026 ---
     full_prompt = f"""
 Tu es un expert en administration française (spécialiste CAF). 
 Traduis ce courrier en langage simple, bienveillant et orienté ACTION.
 
-CONTEXTE DU COURRIER :
+TEXTE À ANALYSER :
 {final_text}
 
-CONSIGNES STRICTES (CONSTRAINT ARCHITECTURE) :
-1. Résume l'essentiel en une phrase sans jargon.
-2. Impact budgétaire : Sois ultra-précis (gain, perte ou dette).
-3. Checklist : Donne 3 actions concrètes.
-4. ESCALADE HUMAINE : Si le courrier concerne une menace d'expulsion, une dette > 1000€ ou une radiation, ajoute IMPÉRATIVEMENT un conseil de contacter une assistante sociale de secteur ou le CCAS.
-
-FORMAT DE RÉPONSE :
+STRUCTURE DU RAPPORT :
 ### 💡 Ce que ça veut dire en 1 phrase
-[Ta réponse]
+[Résumé ultra-simple]
 
 ### 💰 Impact sur votre argent
-[Ta réponse]
+[Explication précise des sommes en jeu]
 
 ### ✅ Ce que vous devez faire (Actions)
-* [Action 1]
-* [Action 2]
-* [Action 3]
+* [Action immédiate]
+* [Action secondaire]
 
-### 📚 Le jargon expliqué
-* [Terme] : [Définition]
-
-### ☎️ Aide humaine (Escalade)
-[Uniquement si nécessaire selon les consignes]
+### ☎️ Aide & Escalade
+[Conseiller de contacter une assistante sociale si dette > 1000€ ou menace d'expulsion]
 """
     st.code(full_prompt, language="markdown")
 
     st.markdown("---")
-    # ÉTAPE 2 : Récupération du résultat
-    st.write("### 🔍 3. Collez la réponse de l'IA ici :")
-    agent_output = st.text_area("Collez le résultat ici pour finaliser :", height=200)
+    st.markdown('<p class="step-header">ÉTAPE 3 : Votre Rapport Final</p>', unsafe_allow_html=True)
+    agent_output = st.text_area("Collez la réponse de l'IA ici pour mettre en forme votre rapport :", height=200)
 
     if agent_output:
         st.markdown('<div class="report-box">', unsafe_allow_html=True)
@@ -146,24 +130,20 @@ FORMAT DE RÉPONSE :
         st.markdown('</div>', unsafe_allow_html=True)
         
         st.download_button(
-            label="📥 Télécharger mon rapport (TXT)",
+            label="📥 Télécharger mon rapport (PDF/TXT)",
             data=agent_output,
             file_name="rapport_decodeur_caf.txt",
             mime="text/plain"
         )
 
-# Section Confiance
-with st.expander("🛡️ Sécurité & Vie Privée (Local-First)"):
-    st.write("""
-    - **Zéro Stockage** : Vos textes ne quittent pas votre navigateur vers nos serveurs.
-    - **Anonymisation** : Le bouton de bouclier masque vos données sensibles localement.
-    - **Accessibilité** : Compatible Windows, Mac, Linux et Mobile.
-    """)
+# Footer
+st.divider()
+with st.expander("🛡️ Confidentialité & Sécurité"):
+    st.write("Ce service est 'Local-First'. Vos données sont traitées dans votre navigateur et ne sont jamais stockées sur nos serveurs.")
 
 # Analytics
 st.components.v1.html(
     """<script data-goatcounter="https://decodeur-caf.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>""",
     height=0,
 )
-
-st.caption("Le Décodeur CAF | Version 2026 | Frugal & Solidaire")
+st.caption("Le Décodeur CAF | Développé avec ❤️ pour la solidarité numérique")
