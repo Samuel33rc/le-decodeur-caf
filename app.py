@@ -97,6 +97,16 @@ RÉPONDS EXACTEMENT SELON CE FORMAT :
             mime="text/plain"
         )
 
+# --- ANALYTICS (GoatCounter) ---
+# Remplace 'decodeur-caf' par ton identifiant GoatCounter réel si différent
+st.components.v1.html(
+    """
+    <script data-goatcounter="https://decodeur-caf.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    """,
+    height=0,
+)
+
 st.divider()
 
 # Section Confiance & Local-First
