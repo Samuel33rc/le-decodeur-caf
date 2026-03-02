@@ -2,8 +2,11 @@ name: Monitor Reddit Feedback
 
 on:
   schedule:
-    - cron: '0 * * * *' # Exécution toutes les heures
-  workflow_dispatch: # Permet de lancer manuellement depuis l'interface GitHub
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
